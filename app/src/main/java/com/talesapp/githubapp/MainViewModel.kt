@@ -3,7 +3,6 @@ package com.talesapp.githubapp
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
 
 class MainViewModel: ViewModel() {
     private val TAG = this.javaClass.simpleName
