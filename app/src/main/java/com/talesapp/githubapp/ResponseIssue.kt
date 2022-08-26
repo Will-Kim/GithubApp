@@ -2,7 +2,7 @@ package com.talesapp.githubapp
 
 class ResponseIssue {
     val url: String? = null
-    val id: String? = null
+    val id: Long? = null
     val number: Int? = 0
     val title: String? = null
     val body: String? = null

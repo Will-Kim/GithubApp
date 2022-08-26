@@ -1,5 +1,6 @@
 package com.talesapp.githubapp
 
+import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,19 +18,24 @@ class MainActivity : AppCompatActivity() {
         viewModel = MainViewModel()
         setContentView(binding.root)
 
+        // Database 초기화
+        Statics.initDB(this@MainActivity)
+
+        val intent = Intent(this@MainActivity, GithubApiService::class.java)
+        this@MainActivity.startService(intent)
     }
 
     override fun onResume() {
         super.onResume()
 
-        val call = RetrofitGithubIssuesCall(this@MainActivity)
-        call.getIssues(viewModel, object : ApiListener {
-             override fun onSuccess() {
-
-             }
-
-            override fun onFail(errMsg: String?) {
-            }
-        })
+//        val call = RetrofitGithubIssuesCall(this@MainActivity)
+//        call.getIssues(viewModel, object : ApiListener {
+//             override fun onSuccess() {
+//
+//             }
+//
+//            override fun onFail(errMsg: String?) {
+//            }
+//        })
     }
 }
