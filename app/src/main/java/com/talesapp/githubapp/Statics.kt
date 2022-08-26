@@ -11,6 +11,8 @@ import java.sql.SQLException
 
 class Statics {
     companion object {
+        const val API_CALL_SUCCESS: String = "API_CALL_SUCCESS"
+        var currentIssue: GithubIssue? = null
         lateinit var dbHelper: DBHelper
         lateinit var database: SQLiteDatabase
         lateinit var ctx: Context
@@ -74,6 +76,39 @@ class Statics {
             }
         }
 
+        @SuppressLint("Range")
+        fun getIssues(org:String, repo:String): ArrayList<GithubIssue>? {
+            val cursor = database.rawQuery(
+                "SELECT * FROM GithubIssues WHERE org = ? and repo = ? ", arrayOf(org, repo))
+
+            // on below line we are creating a new array list.
+            val issues: ArrayList<GithubIssue> = ArrayList()
+
+            if (cursor.moveToFirst()) {
+                var idx = 0
+                do {
+                    idx++
+                    if (idx == 5) {
+                        var issue = GithubIssue()
+                        issue.url = "https://thingsflow.com/ko/home"
+                        issue.avatar = "https://s3.ap-northeast-2.amazonaws.com/hellobot-kr-test/image/main_logo.png"
+                        issues.add(issue)
+                    }
+                    var issue = GithubIssue()
+                    issue.id = cursor.getLong(cursor.getColumnIndex("id"))
+                    issue.number = cursor.getInt(cursor.getColumnIndex("number"))
+                    issue.title = cursor.getString(cursor.getColumnIndex("title"))
+                    issue.body = cursor.getString(cursor.getColumnIndex("body"))
+                    issue.url = cursor.getString(cursor.getColumnIndex("url"))
+                    issue.login = cursor.getString(cursor.getColumnIndex("login"))
+                    issue.avatar = cursor.getString(cursor.getColumnIndex("avatar"))
+                    issue.type = "GITHUB_ISSUE"
+                    issues.add(issue)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+            return issues
+        }
 
         fun CheckIsDataAlreadyInDBorNot(id: Long): Boolean {
             val query = "SELECT  * FROM GithubIssues WHERE id = ?"

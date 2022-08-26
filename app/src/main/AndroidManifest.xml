@@ -15,10 +15,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GithubApp"
         tools:targetApi="31">
+        <activity
+            android:name=".IssueActivity"
+            android:exported="false" />
+
         <service
             android:name=".GithubApiService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".MainActivity"

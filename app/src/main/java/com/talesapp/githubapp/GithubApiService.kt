@@ -31,6 +31,9 @@ class GithubApiService : Service() {
                 call.getIssues(object : ApiListener {
                     override fun onSuccess() {
                         Log.e(TAG, "RetrofitGithubIssuesCall successfully")
+                        val intent = Intent()
+                        intent.action = Statics.API_CALL_SUCCESS
+                        this@GithubApiService.sendBroadcast(intent)
                     }
 
                     override fun onFail(errMsg: String?) {
