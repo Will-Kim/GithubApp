@@ -2,6 +2,7 @@ package com.talesapp.githubapp
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -11,7 +12,10 @@ import java.sql.SQLException
 
 class Statics {
     companion object {
+        private var spref: SharedPreferences? = null
+        const val API_CALL_SUCCESS_TMP: String = "API_CALL_SUCCESS_TMP"
         const val API_CALL_SUCCESS: String = "API_CALL_SUCCESS"
+        const val API_CALL_REQUEST: String = "API_CALL_REQUEST"
         var currentIssue: GithubIssue? = null
         lateinit var dbHelper: DBHelper
         lateinit var database: SQLiteDatabase
@@ -20,6 +24,8 @@ class Statics {
         private val prefOrg = "__GithubApp_Org__"
         private val prefRepo = "__GithubApp_Repo__"
         private val TAG = this.javaClass.simpleName
+        var tmpOrg: String? = ""
+        var tmpRepo: String? = ""
 
         init {
 
@@ -29,7 +35,7 @@ class Statics {
             ctx = context
             dbHelper = DBHelper(ctx, "github_issues.db", null, 2)
             database = dbHelper.writableDatabase
-
+            spref = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
         }
 
         fun insertIssues(issues: List<ResponseIssue>) {
@@ -78,33 +84,42 @@ class Statics {
 
         @SuppressLint("Range")
         fun getIssues(org:String, repo:String): ArrayList<GithubIssue>? {
-            val cursor = database.rawQuery(
-                "SELECT * FROM GithubIssues WHERE org = ? and repo = ? ", arrayOf(org, repo))
-
-            // on below line we are creating a new array list.
             val issues: ArrayList<GithubIssue> = ArrayList()
 
-            if (cursor.moveToFirst()) {
-                var idx = 0
-                do {
-                    idx++
-                    if (idx == 5) {
+            val cursor = database.rawQuery(
+                "SELECT * FROM GithubIssues WHERE org = ? and repo = ? ", arrayOf(org, repo))
+            if (cursor.count > 0) {
+                setOrg(org)
+                setRepo(repo)
+                if (cursor.moveToFirst()) {
+                    var idx = 0
+                    do {
+                        idx++
+                        if (idx == 5) {
+                            var issue = GithubIssue()
+                            issue.url = "https://thingsflow.com/ko/home"
+                            issue.avatar =
+                                "https://s3.ap-northeast-2.amazonaws.com/hellobot-kr-test/image/main_logo.png"
+                            issues.add(issue)
+                        }
                         var issue = GithubIssue()
-                        issue.url = "https://thingsflow.com/ko/home"
-                        issue.avatar = "https://s3.ap-northeast-2.amazonaws.com/hellobot-kr-test/image/main_logo.png"
+                        issue.id = cursor.getLong(cursor.getColumnIndex("id"))
+                        issue.number = cursor.getInt(cursor.getColumnIndex("number"))
+                        issue.title = cursor.getString(cursor.getColumnIndex("title"))
+                        issue.body = cursor.getString(cursor.getColumnIndex("body"))
+                        issue.url = cursor.getString(cursor.getColumnIndex("url"))
+                        issue.login = cursor.getString(cursor.getColumnIndex("login"))
+                        issue.avatar = cursor.getString(cursor.getColumnIndex("avatar"))
+                        issue.type = "GITHUB_ISSUE"
                         issues.add(issue)
-                    }
-                    var issue = GithubIssue()
-                    issue.id = cursor.getLong(cursor.getColumnIndex("id"))
-                    issue.number = cursor.getInt(cursor.getColumnIndex("number"))
-                    issue.title = cursor.getString(cursor.getColumnIndex("title"))
-                    issue.body = cursor.getString(cursor.getColumnIndex("body"))
-                    issue.url = cursor.getString(cursor.getColumnIndex("url"))
-                    issue.login = cursor.getString(cursor.getColumnIndex("login"))
-                    issue.avatar = cursor.getString(cursor.getColumnIndex("avatar"))
-                    issue.type = "GITHUB_ISSUE"
-                    issues.add(issue)
-                } while (cursor.moveToNext())
+                    } while (cursor.moveToNext())
+                }
+            } else {
+                tmpOrg = org
+                tmpRepo = repo
+                val intent = Intent()
+                intent.action = API_CALL_REQUEST
+                ctx.sendBroadcast(intent)
             }
             cursor.close()
             return issues
@@ -122,28 +137,24 @@ class Statics {
         }
 
         fun getOrg(): String {
-            val pref: SharedPreferences = ctx.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-            return pref.getString(prefOrg, "google").toString()
+            return spref?.getString(prefOrg, "google").toString()
         }
 
         fun getRepo(): String {
-            val pref: SharedPreferences = ctx.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-            return pref.getString(prefRepo, "dagger").toString()
+            return spref?.getString(prefRepo, "dagger").toString()
         }
 
         fun setOrg(value: String) {
             if (!value.isNullOrEmpty()) {
-                val pref: SharedPreferences =
-                    ctx.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                pref.edit().putString(prefOrg, value)
+                spref?.edit()?.putString(prefOrg, value)?.apply()
+//                spref?.edit()?.apply()
             }
         }
 
         fun setRepo(value: String) {
             if (!value.isNullOrEmpty()) {
-                val pref: SharedPreferences =
-                    ctx.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                pref.edit().putString(prefRepo, value)
+                spref?.edit()?.putString(prefRepo, value)?.apply()
+//                spref?.edit()?.apply()
             }
         }
 

@@ -11,9 +11,9 @@ class MainViewModel: ViewModel() {
     var repo = MutableLiveData<String>()
 
     init {
-        org.value = "google"
-        repo.value = "dagger"
-        textOrgRepo.value = "google/dagger"
+        org.value = Statics.getOrg()
+        repo.value = Statics.getRepo()
+        textOrgRepo.value = Statics.getOrg() + "/" + Statics.getRepo()
     }
 
     fun setIssues(responses: List<ResponseIssue>) {

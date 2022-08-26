@@ -19,12 +19,12 @@ class RetrofitGithubIssuesCall(context: Context) {
         }
     }
 
-    fun getIssues(apiListener: ApiListener) {
+    fun getIssues(org:String, repo:String, apiListener: ApiListener) {
         val retrofitInterface: RetrofitInterface =
             RetrofitInstance.getRetrofitInstance()!!.create<RetrofitInterface>(
                 RetrofitInterface::class.java
             )
-        val api = retrofitInterface.getIssues(Statics.getOrg(), Statics.getRepo())
+        val api = retrofitInterface.getIssues(org, repo)
 //            val api = retrofitInterface.getIssues("google", "dagger")
         api.enqueue(object : Callback<List<ResponseIssue>> {
             override fun onResponse(
