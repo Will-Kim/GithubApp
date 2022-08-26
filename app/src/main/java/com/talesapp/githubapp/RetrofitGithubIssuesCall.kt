@@ -25,8 +25,8 @@ class RetrofitGithubIssuesCall(context: Context) {
                 RetrofitInstance.getRetrofitInstance()!!.create<RetrofitInterface>(
                     RetrofitInterface::class.java
                 )
-//            val api = retrofitInterface.getIssues(viewModel.org.value, viewModel.repo.value)
-            val api = retrofitInterface.getIssues("google", "dagger")
+            val api = retrofitInterface.getIssues(viewModel.org.value, viewModel.repo.value)
+//            val api = retrofitInterface.getIssues("google", "dagger")
             api.enqueue(object : Callback<List<ResponseIssue>> {
                 override fun onResponse(
                     call: Call<List<ResponseIssue>>?,
