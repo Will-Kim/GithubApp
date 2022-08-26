@@ -17,9 +17,11 @@ class IssueActivity : AppCompatActivity() {
             val issueUser = findViewById<TextView>(R.id.issueText)
             val issueBody = findViewById<TextView>(R.id.issueBody)
 
-            Glide.with(this)
-                .load(Statics.currentIssue!!.avatar)
-                .into(issueImg)
+            if (Statics.currentIssue!!.avatar.isNullOrEmpty()) {
+                Glide.with(this)
+                    .load(Statics.currentIssue!!.avatar)
+                    .into(issueImg)
+            }
 
             issueUser.text = Statics.currentIssue!!.login
             issueBody.text = URLDecoder.decode(Statics.currentIssue!!.body, "utf-8")
